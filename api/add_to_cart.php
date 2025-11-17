@@ -1,18 +1,21 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
-header('Content-Type: application/json');
+require_once "../db.php";
+header("Content-Type: application/json");
+
 $input = json_decode(file_get_contents('php://input'), true);
 $product_id = isset($input['product_id']) ? intval($input['product_id']) : null;
 
 if (!$product_id) {
-    echo json_encode(['status' => 'error', 'msg' => 'No product id supplied']);
+    echo json_encode(["status" => "error", "msg" => "No product id supplied"]);
     exit;
 }
 
 $session_id = session_id();
 $user_id = isset($_SESSION['user']) ? intval($_SESSION['user']['id']) : null;
 
+// Try update existing cart row (session or user)
 if ($user_id) {
+    // logged in: prefer user_id
     $stmt = $conn->prepare("SELECT id FROM cart WHERE user_id = ? AND product_id = ?");
     $stmt->bind_param("ii", $user_id, $product_id);
     $stmt->execute();
@@ -28,6 +31,7 @@ if ($user_id) {
         $stmt2->execute();
     }
 } else {
+    // guest: use session_id
     $stmt = $conn->prepare("SELECT id FROM cart WHERE session_id = ? AND product_id = ?");
     $stmt->bind_param("si", $session_id, $product_id);
     $stmt->execute();
@@ -44,4 +48,4 @@ if ($user_id) {
     }
 }
 
-echo json_encode(['status' => 'success']);
+echo json_encode(["status" => "success"]);

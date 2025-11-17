@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
-header('Content-Type: application/json');
+require_once "../db.php";
+header("Content-Type: application/json");
 
 $session_id = session_id();
 $user_id = isset($_SESSION['user']) ? intval($_SESSION['user']['id']) : null;
@@ -27,4 +27,5 @@ $items = [];
 while ($row = $res->fetch_assoc()) {
     $items[] = $row;
 }
+
 echo json_encode($items);

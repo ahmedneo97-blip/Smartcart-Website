@@ -9,7 +9,10 @@ session_start();
 // }
 
 // Database connection
-include '../includes/db.php';
+
+
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../api/functions.php';
 
 // Check if product ID exists in URL
 if (isset($_GET['id'])) {
@@ -34,4 +37,3 @@ if (isset($_GET['id'])) {
     header("Location: products.php?msg=invalid");
     exit();
 }
-?>

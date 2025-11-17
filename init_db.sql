@@ -33,6 +33,25 @@ CREATE TABLE IF NOT EXISTS cart (
   FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+
+-- ei portion ta  chala ________________________________---
+
+
+CREATE TABLE admin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Default admin user (username: admin, password: admin123)
+INSERT INTO admin (username, password) VALUES 
+('admin', '$2y$10$GnvQxHkSXQiBUV57KT8ZzeeFHXn8pBfWHqfXeCL3xEeKECBUeIKtq');
+
+-- ________________________________________________________-
+
+
+
 -- sample products
 INSERT INTO products (name, price, unit, image, category, discount) VALUES
 ('Fresh Bananas', 45, 'per dozen', '🍌', 'Fresh Produce', 10),

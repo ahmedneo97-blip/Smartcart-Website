@@ -1,40 +1,41 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
-header('Content-Type: application/json');
+require_once "../db.php";
+header("Content-Type: application/json");
 
-$name = $_POST['name'] ?? '';
-$email = $_POST['email'] ?? '';
-$password = $_POST['password'] ?? '';
+$name = isset($_POST['name']) ? trim($_POST['name']) : '';
+$email = isset($_POST['email']) ? trim($_POST['email']) : '';
+$password = isset($_POST['password']) ? $_POST['password'] : '';
 
 if ($name === '' || $email === '' || $password === '') {
-    echo json_encode(['status' => 'error', 'msg' => 'Name, email and password required']);
+    echo json_encode(["status" => "error", "msg" => "Name, email and password are required"]);
     exit;
 }
 
+// check existing email
 $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $res = $stmt->get_result();
-
 if ($res->num_rows > 0) {
-    echo json_encode(['status' => 'error', 'msg' => 'Email already registered']);
+    echo json_encode(["status" => "error", "msg" => "Email already registered"]);
     exit;
 }
 
 $hash = password_hash($password, PASSWORD_BCRYPT);
 $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
 $stmt->bind_param("sss", $name, $email, $hash);
-
 if ($stmt->execute()) {
     $id = $stmt->insert_id;
-    $_SESSION['user'] = ['id' => $id, 'name' => $name, 'email' => $email, 'role' => 'user'];
-    // migrate cart
-    $session_id = session_id();
-    $m = $conn->prepare("UPDATE cart SET user_id = ?, session_id = NULL WHERE session_id = ?");
-    $m->bind_param("is", $id, $session_id);
-    $m->execute();
+    // log in the new user
+    $_SESSION['user'] = ["id" => $id, "name" => $name, "email" => $email];
 
-    echo json_encode(['status' => 'success']);
+    // migrate cart session -> user
+    $session_id = session_id();
+    $migrate = $conn->prepare("UPDATE cart SET user_id = ?, session_id = NULL WHERE session_id = ?");
+    $migrate->bind_param("is", $id, $session_id);
+    $migrate->execute();
+
+    echo json_encode(["status" => "success"]);
 } else {
-    echo json_encode(['status' => 'error', 'msg' => $conn->error]);
+    echo json_encode(["status" => "error", "msg" => "Failed: " . $conn->error]);
 }

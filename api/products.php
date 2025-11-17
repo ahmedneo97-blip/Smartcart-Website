@@ -1,8 +1,8 @@
 <?php
-// api/products.php
-require_once __DIR__ . '/../includes/db.php';
-header('Content-Type: application/json');
+require_once "../db.php";
+header("Content-Type: application/json");
 
+// Optional search query
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
 
 if ($q === '') {
@@ -21,4 +21,5 @@ $rows = [];
 while ($row = $res->fetch_assoc()) {
     $rows[] = $row;
 }
+
 echo json_encode($rows);
