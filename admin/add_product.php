@@ -20,13 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // handle uploaded image file (from <input type="file" name="image">)
   $imageFilename = '';
   if (isset($_FILES['image'])) {
-      $res = upload_product_image($_FILES['image']); // returns ['success'=>bool,'filename'=>str,'error'=>str]
-      if ($res['success']) {
-          $imageFilename = $res['filename'];
-      } else {
-          // optional: set $error to show message in form
-          $error = $res['error'];
-      }
+    $res = upload_product_image($_FILES['image']); // returns ['success'=>bool,'filename'=>str,'error'=>str]
+    if ($res['success']) {
+      $imageFilename = $res['filename'];
+
+      echo "Image uploaded: " . $imageFilename;
+    } else {
+      // optional: set $error to show message in form
+      $error = $res['error'];
+    }
   }
 
   $stmt = $conn->prepare("INSERT INTO products (name, price, unit, image, category, discount) VALUES (?, ?, ?, ?, ?, ?)");
@@ -58,7 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <input name="unit" placeholder="Unit" class="w-full border px-3 py-2 mb-3">
       <input name="image" type="file" accept="image/*" class="w-full border px-3 py-2 mb-3">
       <input name="category" placeholder="Category" class="w-full border px-3 py-2 mb-3">
-      <script>document.querySelector('form').setAttribute('enctype','multipart/form-data');</script>
+      <script>
+        document.querySelector('form').setAttribute('enctype', 'multipart/form-data');
+      </script>
       <input name="discount" type="number" placeholder="Discount %" value="0" class="w-full border px-3 py-2 mb-3">
       <button class="bg-green-600 text-white px-4 py-2 rounded">Add</button>
     </form>

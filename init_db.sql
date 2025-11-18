@@ -68,3 +68,39 @@ INSERT INTO products (name, price, unit, image, category, discount) VALUES
 -- optional admin user (password: password)
 INSERT INTO users (name, email, password, role) VALUES
 ('Admin User','admin@example.com','$2y$10$wH8p1s6bQy2a8Zx9a/2QGu2Q8P8c7g0z4qJq6QKgnldn0vY6J/3i2','admin');
+
+
+-- _______________________________________________________________________________
+CREATE TABLE `shop_categories` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `category_name` VARCHAR(100) NOT NULL,
+    `image` VARCHAR(255) DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Add these tables to your init_db.sql or run manually
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,                    -- NULL for guest (session-based)
+    session_id VARCHAR(128) NULL,
+    full_name VARCHAR(150) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    address TEXT NOT NULL,
+    total_amount INT NOT NULL,
+    status ENUM('pending','confirmed','processing','delivered','cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price INT NOT NULL,            -- price at the time of purchase
+    discount_percent INT DEFAULT 0,
+    final_price INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- _______________________________________________________________________________

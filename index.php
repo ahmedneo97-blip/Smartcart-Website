@@ -145,30 +145,31 @@ if (isset($_SESSION['user'])) {
     <section class="py-12">
         <div class="container mx-auto px-4">
             <h3 class="text-2xl font-bold text-gray-800 mb-8">Shop by Category</h3>
+
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 <?php
-                $categories = [
-                    'Fresh Produce', 'Dairy', 'Meat', 'Bakery', 'Beverages', 'Household'
-                ];
+                // Fetch all categories from DB
+                $query = "SELECT category_name, image FROM shop_categories ORDER BY category_name ASC";
+                $result = $conn->query($query);
 
-                foreach ($categories as $category) {
-                    $stmt = $conn->prepare("SELECT image FROM products WHERE category = ? LIMIT 1");
-                    $stmt->bind_param("s", $category);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $row = $result->fetch_assoc();
-                    $imagePath = $row ? 'images/' . htmlspecialchars($row['image']) : 'images/default.png';
+                while ($row = $result->fetch_assoc()) {
+                    $category = htmlspecialchars($row['category_name']);
+                    $imagePath = $row['image']
+                        ? 'catagories/' . htmlspecialchars($row['image'])
+                        : 'images/default.png';
+
                     echo "<a href='categories.php?category=" . urlencode($category) . "' class='text-center group cursor-pointer block'>";
                     echo "<div class='bg-gray-100 p-6 rounded-full mb-3 group-hover:bg-gray-200 transition-colors'>";
-                    echo "<img src='" . $imagePath . "' alt='" . htmlspecialchars($category) . "' class='w-16 h-16 object-cover rounded-full mx-auto'>";
+                    echo "<img src='{$imagePath}' alt='{$category}' class='w-16 h-16 object-cover rounded-full mx-auto'>";
                     echo "</div>";
-                    echo "<p class='font-medium text-gray-700'>" . htmlspecialchars($category) . "</p>";
+                    echo "<p class='font-medium text-gray-700'>{$category}</p>";
                     echo "</a>";
                 }
                 ?>
             </div>
         </div>
     </section>
+
 
     <!-- Featured Products -->
     <section class="py-12 bg-white">
@@ -203,7 +204,12 @@ if (isset($_SESSION['user'])) {
                 <span class="text-lg font-semibold">Total:</span>
                 <span id="cartTotal" class="text-xl font-bold text-green-600">৳0</span>
             </div>
-            <button id="checkoutBtn" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-300" disabled>
+            <!-- <button id="checkoutBtn" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-300" disabled>
+                Proceed to Checkout
+            </button> -->
+            <button id="checkoutBtn" onclick="window.location.href='checkout.php'"
+                class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-300"
+                <?= empty($cartItems) ? 'disabled' : '' ?>>
                 Proceed to Checkout
             </button>
         </div>
@@ -269,7 +275,9 @@ if (isset($_SESSION['user'])) {
                 return `
                 <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow fade-in">
                     <div class="text-center mb-3">
-                        <div class="text-6xl mb-2">${product.image}</div>
+                            <div class="flex items-center justify-center mb-2">
+                                <img src="./${product.image}" alt="${product.name}" class="w-12 h-12 object-cover rounded" />
+                            </div>
                         ${product.discount > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">${product.discount}% OFF</span>` : ''}
                     </div>
                     <h4 class="font-semibold text-gray-800 mb-2">${product.name}</h4>
@@ -339,7 +347,7 @@ if (isset($_SESSION['user'])) {
                 cartItems.innerHTML = items.map(item => `
                 <div class="flex items-center justify-between py-3 border-b">
                     <div class="flex items-center space-x-3">
-                        <span class="text-2xl">${item.image}</span>
+                        <span class="text-2xl"><img src="./${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded"></span>
                         <div>
                             <h5 class="font-medium">${item.name}</h5>
                             <p class="text-sm text-gray-600">৳${item.final_price} × ${item.quantity}</p>
@@ -413,7 +421,7 @@ if (isset($_SESSION['user'])) {
                 return `
                 <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow fade-in">
                     <div class="text-center mb-3">
-                        <div class="text-6xl mb-2">${product.image}</div>
+                        <span class="text-2xl"><img src="/${product.image}" alt="${product.name}" class="w-12 h-12 object-cover rounded"> </img></span>
                         ${product.discount > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">${product.discount}% OFF</span>` : ''}
                     </div>
                     <h4 class="font-semibold text-gray-800 mb-2">${product.name}</h4>
