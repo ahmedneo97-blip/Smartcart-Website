@@ -146,42 +146,26 @@ if (isset($_SESSION['user'])) {
         <div class="container mx-auto px-4">
             <h3 class="text-2xl font-bold text-gray-800 mb-8">Shop by Category</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                <div class="text-center group cursor-pointer">
-                    <div class="bg-orange-100 p-6 rounded-full mb-3 group-hover:bg-orange-200 transition-colors">
-                        <span class="text-3xl">🥕</span>
-                    </div>
-                    <p class="font-medium text-gray-700">Fresh Produce</p>
-                </div>
-                <div class="text-center group cursor-pointer">
-                    <div class="bg-blue-100 p-6 rounded-full mb-3 group-hover:bg-blue-200 transition-colors">
-                        <span class="text-3xl">🥛</span>
-                    </div>
-                    <p class="font-medium text-gray-700">Dairy & Eggs</p>
-                </div>
-                <div class="text-center group cursor-pointer">
-                    <div class="bg-red-100 p-6 rounded-full mb-3 group-hover:bg-red-200 transition-colors">
-                        <span class="text-3xl">🥩</span>
-                    </div>
-                    <p class="font-medium text-gray-700">Meat & Fish</p>
-                </div>
-                <div class="text-center group cursor-pointer">
-                    <div class="bg-yellow-100 p-6 rounded-full mb-3 group-hover:bg-yellow-200 transition-colors">
-                        <span class="text-3xl">🍞</span>
-                    </div>
-                    <p class="font-medium text-gray-700">Bakery</p>
-                </div>
-                <div class="text-center group cursor-pointer">
-                    <div class="bg-purple-100 p-6 rounded-full mb-3 group-hover:bg-purple-200 transition-colors">
-                        <span class="text-3xl">🥤</span>
-                    </div>
-                    <p class="font-medium text-gray-700">Beverages</p>
-                </div>
-                <div class="text-center group cursor-pointer">
-                    <div class="bg-green-100 p-6 rounded-full mb-3 group-hover:bg-green-200 transition-colors">
-                        <span class="text-3xl">🧽</span>
-                    </div>
-                    <p class="font-medium text-gray-700">Household</p>
-                </div>
+                <?php
+                $categories = [
+                    'Fresh Produce', 'Dairy', 'Meat', 'Bakery', 'Beverages', 'Household'
+                ];
+
+                foreach ($categories as $category) {
+                    $stmt = $conn->prepare("SELECT image FROM products WHERE category = ? LIMIT 1");
+                    $stmt->bind_param("s", $category);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+                    $imagePath = $row ? 'images/' . htmlspecialchars($row['image']) : 'images/default.png';
+                    echo "<a href='categories.php?category=" . urlencode($category) . "' class='text-center group cursor-pointer block'>";
+                    echo "<div class='bg-gray-100 p-6 rounded-full mb-3 group-hover:bg-gray-200 transition-colors'>";
+                    echo "<img src='" . $imagePath . "' alt='" . htmlspecialchars($category) . "' class='w-16 h-16 object-cover rounded-full mx-auto'>";
+                    echo "</div>";
+                    echo "<p class='font-medium text-gray-700'>" . htmlspecialchars($category) . "</p>";
+                    echo "</a>";
+                }
+                ?>
             </div>
         </div>
     </section>
